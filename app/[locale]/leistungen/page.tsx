@@ -55,44 +55,81 @@ export default async function LeistungenPage({ params }: PageProps) {
       </div>
 
       {/* Grid */}
-      <section className="section-py bg-neutral-50">
-        <div className="container-site">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 lg:gap-8">
-            {SERVICES.map((service) => {
+      <section className="section-py relative overflow-hidden bg-[linear-gradient(180deg,#f7f8fb_0%,#ffffff_52%,#f4f6fb_100%)]">
+        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(44,44,46,1) 1px, transparent 1px), linear-gradient(90deg, rgba(44,44,46,1) 1px, transparent 1px)', backgroundSize: '76px 76px' }} />
+        <div className="pointer-events-none absolute -left-20 top-24 h-72 w-72 rounded-full bg-steel/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-steel/10 blur-3xl" />
+
+        <div className="container-site relative">
+          <div className="text-center mb-10 md:mb-14">
+            <span className="inline-flex items-center rounded-full border border-steel/20 bg-steel/10 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-steel mb-3 md:mb-4">
+              {locale === 'de' ? 'Premium Portfolio' : 'Premium Portfolio'}
+            </span>
+            <h2 className="text-graphite mb-4">{t('services.title')}</h2>
+            <p className="text-neutral-500 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">{t('services.subtitle')}</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 lg:gap-7">
+            {SERVICES.map((service, index) => {
               const tr = service[lang]
               return (
-                <Link key={service.slug} href={`/${locale}/leistungen/${service.slug}`}
-                  className="group bg-white border border-neutral-200 rounded-sm overflow-hidden hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-300">
+                <Link
+                  key={service.slug}
+                  href={`/${locale}/leistungen/${service.slug}`}
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white/95 shadow-[0_14px_34px_rgba(16,24,40,0.08)] transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/45 hover:shadow-[0_24px_52px_rgba(36,57,90,0.18)] animate-fade-up"
+                  style={{ animationDelay: `${Math.min(index * 70, 490)}ms` }}
+                >
                   {/* Image */}
-                  <div className="relative h-[200px] md:h-[220px] overflow-hidden">
+                  <div className="relative h-[210px] md:h-[228px] overflow-hidden">
                     <Image
                       src={SERVICE_IMAGES[service.slug]}
                       alt={tr.title}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110 group-hover:rotate-[0.6deg]"
                       sizes="(max-width:640px) 100vw, 50vw"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-graphite/50 via-transparent to-transparent" />
-                  </div>
-                  {/* Content */}
-                  <div className="p-6 md:p-7">
-                    <div className="flex items-start justify-between mb-2">
-                      <h2 className="font-display text-lg md:text-xl text-graphite group-hover:text-steel transition-colors">
-                        {tr.title}
-                      </h2>
-                      <svg className="h-5 w-5 text-steel opacity-0 group-hover:opacity-100 group-hover:-translate-x-0 translate-x-1 transition-all duration-300 shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                      </svg>
+                    <div className="absolute inset-0 bg-gradient-to-t from-anthracite/72 via-anthracite/12 to-transparent" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_84%_18%,rgba(107,143,196,0.28),transparent_44%)] opacity-80" />
+
+                    <div className="absolute left-4 top-4 flex items-center gap-2">
+                      <span className="inline-flex h-7 items-center rounded-md border border-white/25 bg-black/25 px-2.5 text-[10px] font-medium tracking-[0.14em] uppercase text-white/90 backdrop-blur-sm">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      {service.featured && (
+                        <span className="inline-flex h-7 items-center rounded-md border border-steel-light/45 bg-steel/25 px-2.5 text-[10px] font-medium tracking-[0.12em] uppercase text-white/95 backdrop-blur-sm">
+                          {locale === 'de' ? 'Top Leistung' : 'Top Service'}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-sm text-neutral-500 leading-relaxed mb-4">{tr.shortDesc}</p>
-                    <ul className="flex flex-col gap-1.5">
+
+                    <span className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-1000 group-hover:left-[125%] group-hover:opacity-100" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="relative flex flex-1 flex-col p-6 md:p-7">
+                    <h2 className="font-display text-xl text-graphite group-hover:text-steel transition-colors mb-2 leading-tight">
+                      {tr.title}
+                    </h2>
+                    <p className="text-sm text-neutral-600 leading-relaxed mb-4 line-clamp-2">{tr.shortDesc}</p>
+                    <ul className="flex flex-col gap-1.5 mb-4">
                       {tr.benefits.slice(0, 3).map((b) => (
-                        <li key={b} className="flex items-center gap-2 text-sm text-neutral-600">
-                          <span className="h-1.5 w-1.5 rounded-full bg-steel shrink-0" />{b}
+                        <li key={b} className="flex items-start gap-2 text-sm text-neutral-600">
+                          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-steel shadow-[0_0_0_4px_rgba(74,111,165,0.15)] shrink-0" />
+                          <span className="leading-snug">{b}</span>
                         </li>
                       ))}
                     </ul>
+
+                    <div className="mt-auto pt-4 border-t border-neutral-200/80 flex items-center justify-between">
+                      <span className="text-[10px] font-medium tracking-[0.15em] uppercase text-neutral-400">
+                        {locale === 'de' ? 'Mehr erfahren' : 'Learn more'}
+                      </span>
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-steel/35 bg-steel/10 text-steel transition-all duration-300 group-hover:bg-steel group-hover:text-white group-hover:translate-x-0.5">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                      </span>
+                    </div>
                   </div>
+                  <span className="pointer-events-none absolute inset-x-7 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/80 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
                 </Link>
               )
             })}
