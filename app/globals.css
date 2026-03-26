@@ -143,6 +143,24 @@
     opacity: 1;
     transform: translateX(430%) rotate(20deg);
   }
+  @keyframes premiumSheenLoop {
+    0% {
+      opacity: 0;
+      transform: translateX(-160%) rotate(20deg);
+    }
+    10% {
+      opacity: 0.6;
+    }
+    32% {
+      opacity: 0.6;
+      transform: translateX(430%) rotate(20deg);
+    }
+    45%,
+    100% {
+      opacity: 0;
+      transform: translateX(430%) rotate(20deg);
+    }
+  }
   .btn-premium-base > * {
     position: relative;
     z-index: 2;
@@ -189,10 +207,23 @@
     box-shadow: 0 20px 40px rgba(37, 56, 84, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
+  @media (hover: none) and (pointer: coarse) {
+    .btn-premium-base::after {
+      opacity: 0.55;
+      animation: premiumSheenLoop 3.4s linear infinite;
+      transition: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .btn-premium-base,
     .btn-premium-base::after {
       transition: none;
+    }
+    .btn-premium-base::after {
+      animation: none !important;
+      opacity: 0;
+      transform: translateX(-140%) rotate(20deg);
     }
     .btn-premium-base:hover {
       transform: none;
