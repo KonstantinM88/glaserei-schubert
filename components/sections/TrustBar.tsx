@@ -19,15 +19,49 @@ export function TrustBar() {
     { icon: icons.pin,       label: t('region') },
   ]
   return (
-    <div className="bg-graphite">
-      <div className="container-site">
-        <div className="flex flex-wrap items-center justify-center">
-          {items.map((item) => (
-            <div key={item.label} className="flex items-center gap-2 px-4 md:px-6 py-4 md:py-5 text-white/70 border-r border-white/[0.07] last:border-r-0">
-              <span className="text-steel shrink-0">{item.icon}</span>
-              <span className="text-xs md:text-sm font-medium whitespace-nowrap">{item.label}</span>
-            </div>
-          ))}
+    <div className="relative overflow-hidden border-y border-white/10 bg-gradient-to-r from-graphite via-anthracite to-graphite">
+      <div
+        className="absolute inset-0 opacity-[0.045]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
+          backgroundSize: '72px 72px',
+        }}
+      />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/40 to-transparent" />
+      <div className="pointer-events-none absolute -left-20 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-steel/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 top-1/2 h-56 w-56 -translate-y-1/2 rounded-full bg-steel/15 blur-3xl" />
+
+      <div className="container-site relative">
+        <div className="py-2 md:py-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-w-max gap-2 md:min-w-0 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(220px,1fr))] md:gap-3">
+            {items.map((item, i) => (
+              <div
+                key={item.label}
+                className="group relative flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3.5 md:px-5 md:py-4 backdrop-blur-[2px] transition-all duration-400 hover:-translate-y-0.5 hover:border-white/18 hover:bg-white/[0.055]"
+              >
+                <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-steel/35 bg-gradient-to-br from-steel/35 via-steel/20 to-transparent text-steel-light shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] transition-colors duration-300 group-hover:text-white">
+                  {item.icon}
+                </span>
+
+                <div className="flex min-w-0 items-start gap-2">
+                  <span className="text-[10px] font-medium tracking-[0.15em] uppercase text-white/35 transition-colors duration-300 group-hover:text-white/55">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="whitespace-nowrap md:whitespace-normal text-xs md:text-[13px] lg:text-sm leading-tight font-medium text-white/78 transition-colors duration-300 group-hover:text-white">
+                    {item.label}
+                  </span>
+                </div>
+
+                <span
+                  className={`pointer-events-none absolute bottom-0 left-0 h-px bg-gradient-to-r from-steel/85 via-steel/35 to-transparent transition-all duration-500 ${
+                    i === 0 ? 'w-full opacity-100' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
