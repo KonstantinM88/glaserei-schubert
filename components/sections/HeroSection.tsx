@@ -60,12 +60,12 @@ export function HeroSection({ locale, badge, title, subtitle, ctaLabel, ctaSecon
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 md:mb-14 animate-fade-up" style={{ animationDelay: '0.4s' }}>
             <Link href={`/${locale}/kontakt`}
-              className="inline-flex h-12 md:h-14 items-center justify-center px-6 md:px-8 bg-white text-graphite text-sm font-semibold tracking-wide rounded-sm hover:bg-neutral-100 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 gap-2">
+              className="btn-premium-base btn-premium-light inline-flex h-12 md:h-14 items-center justify-center px-6 md:px-8 text-sm font-semibold tracking-wide gap-2">
               {ctaLabel}
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </Link>
             <Link href={`/${locale}/leistungen`}
-              className="inline-flex h-12 md:h-14 items-center justify-center px-6 md:px-8 bg-white/10 border border-white/30 text-white text-sm font-medium tracking-wide rounded-sm hover:bg-white/18 hover:border-white/50 transition-all duration-300 backdrop-blur-sm">
+              className="btn-premium-base btn-premium-glass inline-flex h-12 md:h-14 items-center justify-center px-6 md:px-8 text-sm font-medium tracking-wide">
               {ctaSecondary}
             </Link>
           </div>

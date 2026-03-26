@@ -92,7 +92,9 @@ export function Header({ locale }: { locale: string }) {
               </Link>
               <Link href={`/${locale}/kontakt`}
                 className={cn('inline-flex h-10 items-center px-5 text-sm font-medium rounded-sm transition-all duration-300',
-                  scrolled ? 'bg-graphite text-white hover:bg-anthracite shadow-sm' : 'bg-white/15 text-white border border-white/40 hover:bg-white hover:text-graphite'
+                  scrolled
+                    ? 'btn-premium-base btn-premium-steel'
+                    : 'btn-premium-base btn-premium-glass'
                 )}>
                 {locale === 'de' ? 'Angebot anfragen' : 'Get a quote'}
               </Link>
@@ -181,7 +183,7 @@ export function Header({ locale }: { locale: string }) {
             <Link
               href={`/${locale}/kontakt`}
               onClick={() => setOpen(false)}
-              className="inline-flex h-11 items-center px-6 bg-steel text-white text-sm font-medium rounded-sm hover:bg-steel-dark transition-all duration-300 hover:shadow-[0_8px_26px_rgba(74,111,165,0.35)]"
+              className="btn-premium-base btn-premium-steel inline-flex h-11 items-center px-6 text-sm font-medium"
             >
               {locale === 'de' ? 'Angebot anfragen' : 'Get a quote'}
             </Link>
