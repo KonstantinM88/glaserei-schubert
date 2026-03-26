@@ -220,7 +220,7 @@
     box-shadow: 0 20px 40px rgba(37, 56, 84, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
-  @media ((hover: none) and (pointer: coarse)), ((any-hover: none) and (any-pointer: coarse)) {
+  @media (hover: none) and (pointer: coarse), (any-hover: none) and (any-pointer: coarse), (max-width: 1024px) {
     .btn-premium-base::after {
       opacity: 0.55;
       animation: premiumSheenLoop 3.4s linear infinite;
