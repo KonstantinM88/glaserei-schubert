@@ -40,25 +40,25 @@ export function HeroSection({ locale, badge, title, subtitle, ctaLabel, ctaSecon
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container-site w-full pt-28 pb-20 md:pt-36 md:pb-24">
-        <div className="max-w-3xl">
+      <div className="relative z-10 container-site w-full pt-28 pb-20 md:pt-28 md:pb-14 lg:pt-32 lg:pb-16">
+        <div className="max-w-3xl lg:max-w-[56rem]">
           {/* Badge */}
-          <div className="inline-flex items-center px-3 py-1.5 text-[11px] font-medium tracking-[0.14em] uppercase rounded-sm bg-white/12 border border-white/25 text-white/85 mb-6 md:mb-8 animate-fade-up" style={{ animationDelay: '0.1s' }}>
+          <div className="inline-flex items-center px-3 py-1.5 text-[11px] font-medium tracking-[0.14em] uppercase rounded-sm bg-white/12 border border-white/25 text-white/85 mb-6 md:mb-6 animate-fade-up" style={{ animationDelay: '0.1s' }}>
             {badge}
           </div>
 
           {/* Title */}
-          <h1 className="text-white mb-5 md:mb-7 animate-fade-up text-bal" style={{ animationDelay: '0.2s' }}>
+          <h1 className="text-white mb-5 md:mb-6 animate-fade-up text-bal" style={{ animationDelay: '0.2s' }}>
             {title}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base md:text-lg lg:text-xl text-white/65 leading-relaxed mb-8 md:mb-12 max-w-xl animate-fade-up" style={{ animationDelay: '0.3s' }}>
+          <p className="text-base md:text-lg lg:text-[1.14rem] text-white/65 leading-relaxed mb-8 md:mb-8 lg:mb-9 max-w-2xl animate-fade-up" style={{ animationDelay: '0.3s' }}>
             {subtitle}
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 md:mb-14 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 md:mb-8 lg:mb-10 animate-fade-up" style={{ animationDelay: '0.4s' }}>
             <Link href={`/${locale}/kontakt`}
               className="btn-premium-base btn-premium-light inline-flex h-12 md:h-14 items-center justify-center px-6 md:px-8 text-sm font-semibold tracking-wide gap-2">
               {ctaLabel}
