@@ -18,6 +18,8 @@ export function TrustBar() {
     { icon: icons.bolt,      label: t('service') },
     { icon: icons.pin,       label: t('region') },
   ]
+  const marqueeItems = [...items, ...items]
+
   return (
     <div className="relative overflow-hidden border-y border-white/10 bg-gradient-to-r from-graphite via-anthracite to-graphite">
       <div
@@ -32,14 +34,19 @@ export function TrustBar() {
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/40 to-transparent" />
       <div className="pointer-events-none absolute -left-20 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-steel/20 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-1/2 h-56 w-56 -translate-y-1/2 rounded-full bg-steel/15 blur-3xl" />
+      <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-12 bg-gradient-to-r from-graphite via-graphite/85 to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-12 bg-gradient-to-l from-graphite via-graphite/85 to-transparent" />
 
       <div className="container-site relative">
-        <div className="py-2 md:py-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="flex min-w-max gap-2 md:min-w-0 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(220px,1fr))] md:gap-3">
-            {items.map((item, i) => (
+        <div className="trust-marquee py-2 md:py-3">
+          <div className="trust-marquee-track flex min-w-max gap-2 md:gap-3">
+            {marqueeItems.map((item, i) => {
+              const baseIndex = i % items.length
+              return (
               <div
-                key={item.label}
-                className="group relative flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3.5 md:px-5 md:py-4 backdrop-blur-[2px] transition-all duration-400 hover:-translate-y-0.5 hover:border-white/18 hover:bg-white/[0.055]"
+                key={`${item.label}-${i}`}
+                aria-hidden={i >= items.length}
+                className="group relative flex min-w-[260px] md:min-w-[285px] items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3.5 md:px-5 md:py-4 backdrop-blur-[2px] transition-all duration-400 hover:-translate-y-0.5 hover:border-white/18 hover:bg-white/[0.055]"
               >
                 <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-steel/35 bg-gradient-to-br from-steel/35 via-steel/20 to-transparent text-steel-light shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] transition-colors duration-300 group-hover:text-white">
                   {item.icon}
@@ -47,20 +54,20 @@ export function TrustBar() {
 
                 <div className="flex min-w-0 items-start gap-2">
                   <span className="text-[10px] font-medium tracking-[0.15em] uppercase text-white/35 transition-colors duration-300 group-hover:text-white/55">
-                    {String(i + 1).padStart(2, '0')}
+                    {String(baseIndex + 1).padStart(2, '0')}
                   </span>
-                  <span className="whitespace-nowrap md:whitespace-normal text-xs md:text-[13px] lg:text-sm leading-tight font-medium text-white/78 transition-colors duration-300 group-hover:text-white">
+                  <span className="whitespace-nowrap text-xs md:text-[13px] lg:text-sm leading-tight font-medium text-white/78 transition-colors duration-300 group-hover:text-white">
                     {item.label}
                   </span>
                 </div>
 
                 <span
                   className={`pointer-events-none absolute bottom-0 left-0 h-px bg-gradient-to-r from-steel/85 via-steel/35 to-transparent transition-all duration-500 ${
-                    i === 0 ? 'w-full opacity-100' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
+                    baseIndex === 0 ? 'w-full opacity-100' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
                   }`}
                 />
               </div>
-            ))}
+            )})}
           </div>
         </div>
       </div>
