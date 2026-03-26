@@ -11,6 +11,7 @@ export function Header({ locale }: { locale: string }) {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const mobileHeaderHeightClass = 'h-16 md:h-20'
   const other = locale === 'de' ? 'en' : 'de'
   const altPath = pathname.replace(`/${locale}`, `/${other}`)
 
@@ -42,17 +43,21 @@ export function Header({ locale }: { locale: string }) {
       <header
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-          scrolled ? 'bg-white/95 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.06)]' : 'bg-transparent'
+          open
+            ? 'bg-anthracite border-b border-white/10'
+            : scrolled
+              ? 'bg-white/95 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.06)]'
+              : 'bg-transparent'
         )}
       >
         <div className="container-site">
-          <div className="flex h-16 md:h-20 items-center justify-between">
+          <div className={cn('flex items-center justify-between', mobileHeaderHeightClass)}>
             {/* Logo */}
             <Link href={`/${locale}`} className="flex flex-col leading-none gap-0.5 shrink-0">
-              <span className={cn('font-display text-base md:text-lg font-semibold tracking-tight transition-colors', scrolled ? 'text-graphite' : 'text-white')}>
+              <span className={cn('font-display text-base md:text-lg font-semibold tracking-tight transition-colors', open ? 'text-white' : scrolled ? 'text-graphite' : 'text-white')}>
                 Glaserei Schubert
               </span>
-              <span className={cn('text-[10px] tracking-[0.2em] uppercase transition-colors', scrolled ? 'text-steel' : 'text-white/60')}>
+              <span className={cn('text-[10px] tracking-[0.2em] uppercase transition-colors', open ? 'text-white/60' : scrolled ? 'text-steel' : 'text-white/60')}>
                 Leipzig
               </span>
             </Link>
@@ -93,7 +98,7 @@ export function Header({ locale }: { locale: string }) {
             <button onClick={() => setOpen(!open)} aria-label="Menü" className="lg:hidden p-2 flex flex-col gap-[5px]">
               {[0,1,2].map(i => (
                 <span key={i} className={cn('block h-0.5 w-6 transition-all duration-300',
-                  scrolled || open ? 'bg-graphite' : 'bg-white',
+                  open ? 'bg-white' : scrolled ? 'bg-graphite' : 'bg-white',
                   i === 0 && open && 'translate-y-2 rotate-45',
                   i === 1 && open && 'opacity-0',
                   i === 2 && open && '-translate-y-2 -rotate-45'
@@ -106,12 +111,9 @@ export function Header({ locale }: { locale: string }) {
 
       {/* Mobile overlay */}
       <div className={cn(
-        'fixed inset-0 z-40 bg-anthracite flex flex-col lg:hidden transition-all duration-500',
+        'fixed left-0 right-0 bottom-0 top-16 md:top-20 z-40 bg-anthracite flex flex-col lg:hidden transition-all duration-500',
         open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       )}>
-        <div className="flex h-16 items-center px-5 border-b border-white/10">
-          <span className="font-display text-lg font-semibold text-white">Glaserei Schubert</span>
-        </div>
         <nav className="flex flex-col px-5 py-8 gap-1 flex-1 overflow-y-auto">
           {links.map((l, i) => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
