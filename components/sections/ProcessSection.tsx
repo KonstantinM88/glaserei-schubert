@@ -4,14 +4,20 @@
 import { useEffect, useRef, useState } from 'react'
 
 interface ProcessStep { number: string; title: string; description: string }
+const MOBILE_QUERY = '(max-width: 1024px), (hover: none) and (pointer: coarse)'
 
 export function ProcessSection({ title, subtitle, steps }: { title: string; subtitle: string; steps: ProcessStep[] }) {
   const [headingVisible, setHeadingVisible] = useState(false)
   const [visibleSteps, setVisibleSteps] = useState<boolean[]>(() => steps.map(() => false))
+  const [mobilePulseSteps, setMobilePulseSteps] = useState<boolean[]>(() => steps.map(() => false))
 
   const headingRef = useRef<HTMLDivElement | null>(null)
   const stepRefs = useRef<Array<HTMLDivElement | null>>([])
   const visibleStepsRef = useRef<boolean[]>(visibleSteps)
+  const hasScrolledRef = useRef(false)
+  const lastScrollYRef = useRef(0)
+  const pulseDoneRef = useRef<Set<number>>(new Set())
+  const pulseTimeoutsRef = useRef<number[]>([])
 
   useEffect(() => {
     visibleStepsRef.current = visibleSteps
@@ -22,7 +28,25 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
     const initialSteps = steps.map(() => false)
     setVisibleSteps(initialSteps)
     visibleStepsRef.current = initialSteps
+    setMobilePulseSteps(initialSteps)
+    pulseDoneRef.current.clear()
   }, [steps.length])
+
+  useEffect(() => {
+    lastScrollYRef.current = window.scrollY
+
+    const onScroll = () => {
+      const nextScrollY = window.scrollY
+      const delta = nextScrollY - lastScrollYRef.current
+      if (Math.abs(delta) > 2) {
+        hasScrolledRef.current = true
+      }
+      lastScrollYRef.current = nextScrollY
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     if (!('IntersectionObserver' in window)) {
@@ -30,6 +54,8 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
       setVisibleSteps(steps.map(() => true))
       return
     }
+
+    const mobileMedia = window.matchMedia(MOBILE_QUERY)
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -68,6 +94,31 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
             })
           }
 
+          if (mobileMedia.matches && hasScrolledRef.current && !pulseDoneRef.current.has(index)) {
+            pulseDoneRef.current.add(index)
+
+            setMobilePulseSteps((prev) => {
+              if (prev[index]) {
+                return prev
+              }
+              const next = [...prev]
+              next[index] = true
+              return next
+            })
+
+            const timeoutId = window.setTimeout(() => {
+              setMobilePulseSteps((prev) => {
+                if (!prev[index]) {
+                  return prev
+                }
+                const next = [...prev]
+                next[index] = false
+                return next
+              })
+            }, 1720)
+            pulseTimeoutsRef.current.push(timeoutId)
+          }
+
           observer.unobserve(target)
         })
       },
@@ -89,6 +140,12 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
 
     return () => observer.disconnect()
   }, [steps.length])
+
+  useEffect(() => {
+    return () => {
+      pulseTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId))
+    }
+  }, [])
 
   return (
     <section className="section-py relative overflow-hidden bg-[linear-gradient(180deg,#14161b_0%,#101318_52%,#171b23_100%)]">
@@ -116,6 +173,7 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 xl:gap-7">
             {steps.map((step, index) => {
               const isVisible = visibleSteps[index]
+              const isMobilePulse = mobilePulseSteps[index]
               return (
                 <div
                   key={step.number}
@@ -127,7 +185,7 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
                   className={`process-reveal ${isVisible ? 'is-visible' : ''}`}
                   style={{ transitionDelay: isVisible ? `${Math.min(index * 110, 440)}ms` : '0ms' }}
                 >
-                  <article className={`group process-step-card ${isVisible ? 'process-step-card-active' : ''} relative flex h-full flex-col rounded-2xl border border-white/12 bg-white/[0.035] p-6 md:p-7 text-center shadow-[0_18px_42px_rgba(2,7,16,0.36)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/55 hover:shadow-[0_28px_58px_rgba(18,33,60,0.48)]`}>
+                  <article className={`group process-step-card ${isVisible ? 'process-step-card-active' : ''} ${isMobilePulse ? 'process-mobile-pulse' : ''} relative flex h-full flex-col rounded-2xl border border-white/12 bg-white/[0.035] p-6 md:p-7 text-center shadow-[0_18px_42px_rgba(2,7,16,0.36)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/55 hover:shadow-[0_28px_58px_rgba(18,33,60,0.48)]`}>
                     <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_18%_12%,rgba(107,143,196,0.24),transparent_46%)] opacity-85" />
                     <div className="relative flex items-center gap-3 mb-5 md:mb-6">
                       <div className="process-step-node inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-steel/35 bg-steel/10">
@@ -138,7 +196,7 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
 
                     <h3 className="relative font-display text-xl text-white mb-3 leading-tight">{step.title}</h3>
                     <p className="relative text-sm md:text-base text-neutral-300/90 leading-relaxed">{step.description}</p>
-                    <span className="pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/85 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+                    <span className="process-step-bottom-line pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/85 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
                   </article>
                 </div>
               )
