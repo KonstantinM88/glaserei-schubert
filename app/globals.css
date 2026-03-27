@@ -115,6 +115,84 @@
     animation: trustMarqueeLtr 30s linear infinite;
   }
 
+  .leistungen-reveal {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0) scale(0.97);
+    filter: blur(1.5px);
+    transition: opacity 0.72s var(--ease-premium), transform 0.72s var(--ease-premium), filter 0.72s var(--ease-premium);
+  }
+  .leistungen-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+
+  .leistungen-service-card {
+    will-change: transform, box-shadow;
+  }
+
+  @keyframes leistungenPulseDown {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    38% {
+      transform: translateY(-5px) scale(1.018);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes leistungenPulseUp {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    38% {
+      transform: translateY(5px) scale(1.018);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes leistungenSheenOnce {
+    0% {
+      left: -38%;
+      opacity: 0;
+    }
+    16% {
+      opacity: 0.78;
+    }
+    100% {
+      left: 128%;
+      opacity: 0;
+    }
+  }
+
+  .leistungen-mobile-pulse {
+    border-color: rgba(74, 111, 165, 0.52);
+    box-shadow: 0 24px 52px rgba(36, 57, 90, 0.18);
+  }
+  .leistungen-mobile-pulse-down {
+    animation: leistungenPulseDown 0.84s var(--ease-premium) both;
+  }
+  .leistungen-mobile-pulse-up {
+    animation: leistungenPulseUp 0.84s var(--ease-premium) both;
+  }
+  .leistungen-mobile-pulse .leistungen-card-image {
+    transform: scale(1.09) rotate(0.55deg);
+  }
+  .leistungen-mobile-pulse .leistungen-card-arrow {
+    background-color: var(--color-steel);
+    color: #fff;
+    transform: translateX(2px) scale(1.04);
+  }
+  .leistungen-mobile-pulse .leistungen-card-bottom-line {
+    transform: scaleX(1);
+  }
+  .leistungen-mobile-pulse .leistungen-card-sheen {
+    animation: leistungenSheenOnce 0.86s var(--ease-premium) both;
+    opacity: 0.7;
+  }
+
   /* Focus ring */
   *:focus-visible {
     outline: 2px solid var(--color-steel);
@@ -229,6 +307,24 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .leistungen-reveal {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+    .leistungen-mobile-pulse,
+    .leistungen-mobile-pulse-down,
+    .leistungen-mobile-pulse-up,
+    .leistungen-mobile-pulse .leistungen-card-sheen {
+      animation: none !important;
+    }
+    .leistungen-mobile-pulse .leistungen-card-image,
+    .leistungen-mobile-pulse .leistungen-card-arrow,
+    .leistungen-mobile-pulse .leistungen-card-bottom-line {
+      transform: none;
+    }
+
     .trust-marquee-track {
       animation: none;
       transform: translateX(0);
