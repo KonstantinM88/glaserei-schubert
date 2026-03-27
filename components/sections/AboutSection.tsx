@@ -1,5 +1,4 @@
 // components/sections/AboutSection.tsx
-import Image from 'next/image'
 import Link from 'next/link'
 
 interface Stat { value: string; label: string }
@@ -29,16 +28,21 @@ export function AboutSection({ locale, badge, title, text1, text2, stats, ctaLab
           <div className="relative order-1 lg:order-none">
             <div className="relative aspect-[4/5] max-w-sm mx-auto lg:mx-0 lg:max-w-none">
               {/* Main image */}
-              <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/35 shadow-[0_24px_64px_rgba(20,28,46,0.28)]">
-                <Image
-                  src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=85&auto=format&fit=crop"
-                  alt="Glaserei Schubert – Werkstatt und Team"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width:1024px) 80vw, 40vw"
-                />
+              <div className="about-workshop-frame relative w-full h-full rounded-2xl overflow-hidden border border-white/35 shadow-[0_24px_64px_rgba(20,28,46,0.28)]">
+                <picture className="absolute inset-0 block h-full w-full">
+                  <source media="(max-width: 640px)" srcSet="/Pictures/workshop_800.webp" />
+                  <source media="(max-width: 1200px)" srcSet="/Pictures/workshop_1200.webp" />
+                  <img
+                    src="/Pictures/workshop_1600.webp"
+                    alt="Glaserei Schubert – Werkstatt und Team"
+                    className="about-workshop-image h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-anthracite/82 via-anthracite/18 to-transparent" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(107,143,196,0.28),transparent_42%)]" />
+                <span className="about-workshop-sheen pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/32 to-transparent" />
 
                 <div className="absolute top-5 left-5 inline-flex items-center rounded-md border border-white/20 bg-black/25 px-2.5 py-1 text-[10px] font-medium tracking-[0.14em] uppercase text-white/85 backdrop-blur-sm">
                   {locale === 'de' ? 'Werkstatt Leipzig' : 'Leipzig Workshop'}
@@ -59,7 +63,7 @@ export function AboutSection({ locale, badge, title, text1, text2, stats, ctaLab
               </div>
 
               {/* Floating stat card */}
-              <div className="absolute -bottom-6 -right-5 md:-bottom-7 md:-right-7 bg-white/95 border border-neutral-200 shadow-[0_16px_44px_rgba(20,28,46,0.2)] p-5 md:p-6 rounded-xl min-w-[160px] md:min-w-[188px]">
+              <div className="about-workshop-stat absolute -bottom-6 -right-5 md:-bottom-7 md:-right-7 bg-white/95 border border-neutral-200 shadow-[0_16px_44px_rgba(20,28,46,0.2)] p-5 md:p-6 rounded-xl min-w-[160px] md:min-w-[188px]">
                 <p className="font-display text-4xl md:text-[3.2rem] font-bold text-graphite leading-none mb-1">
                   {featuredStat?.value ?? '30+'}
                 </p>
