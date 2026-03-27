@@ -1,30 +1,149 @@
 // components/sections/ProcessSection.tsx
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
 
 interface ProcessStep { number: string; title: string; description: string }
 
 export function ProcessSection({ title, subtitle, steps }: { title: string; subtitle: string; steps: ProcessStep[] }) {
+  const [headingVisible, setHeadingVisible] = useState(false)
+  const [visibleSteps, setVisibleSteps] = useState<boolean[]>(() => steps.map(() => false))
+
+  const headingRef = useRef<HTMLDivElement | null>(null)
+  const stepRefs = useRef<Array<HTMLDivElement | null>>([])
+  const visibleStepsRef = useRef<boolean[]>(visibleSteps)
+
+  useEffect(() => {
+    visibleStepsRef.current = visibleSteps
+  }, [visibleSteps])
+
+  useEffect(() => {
+    setHeadingVisible(false)
+    const initialSteps = steps.map(() => false)
+    setVisibleSteps(initialSteps)
+    visibleStepsRef.current = initialSteps
+  }, [steps.length])
+
+  useEffect(() => {
+    if (!('IntersectionObserver' in window)) {
+      setHeadingVisible(true)
+      setVisibleSteps(steps.map(() => true))
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return
+          }
+
+          const target = entry.target as HTMLElement
+          const targetKind = target.dataset.processKind
+
+          if (targetKind === 'heading') {
+            setHeadingVisible(true)
+            observer.unobserve(target)
+            return
+          }
+
+          const indexRaw = target.dataset.processIndex
+          if (!indexRaw) {
+            return
+          }
+
+          const index = Number(indexRaw)
+          if (Number.isNaN(index)) {
+            return
+          }
+
+          if (!visibleStepsRef.current[index]) {
+            setVisibleSteps((prev) => {
+              if (prev[index]) {
+                return prev
+              }
+              const next = [...prev]
+              next[index] = true
+              return next
+            })
+          }
+
+          observer.unobserve(target)
+        })
+      },
+      {
+        threshold: 0.24,
+        rootMargin: '0px 0px -10% 0px',
+      },
+    )
+
+    if (headingRef.current) {
+      observer.observe(headingRef.current)
+    }
+
+    stepRefs.current.forEach((step) => {
+      if (step) {
+        observer.observe(step)
+      }
+    })
+
+    return () => observer.disconnect()
+  }, [steps.length])
+
   return (
-    <section className="section-py bg-anthracite">
-      <div className="container-site">
-        {/* Heading */}
-        <div className="text-center mb-12 md:mb-20">
+    <section className="section-py relative overflow-hidden bg-[linear-gradient(180deg,#14161b_0%,#101318_52%,#171b23_100%)]">
+      <div className="pointer-events-none absolute inset-0 opacity-[0.045]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
+      <div className="pointer-events-none absolute -left-20 top-24 h-72 w-72 rounded-full bg-steel/12 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-10 h-80 w-80 rounded-full bg-steel/10 blur-3xl" />
+
+      <div className="container-site relative">
+        <div
+          ref={headingRef}
+          data-process-kind="heading"
+          className={`process-reveal text-center mb-12 md:mb-16 ${headingVisible ? 'is-visible' : ''}`}
+        >
+          <span className="inline-flex items-center rounded-full border border-steel/25 bg-steel/10 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-steel-light mb-4">
+            {steps[0]?.number ?? '01'}-{steps[steps.length - 1]?.number ?? '04'}
+          </span>
           <h2 className="text-white mb-4 md:mb-5">{title}</h2>
-          <p className="text-neutral-400 text-base md:text-lg max-w-xl mx-auto leading-relaxed">{subtitle}</p>
+          <p className="text-neutral-300 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">{subtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 relative">
-          {/* Connector line (desktop only) */}
-          <div className="hidden lg:block absolute top-9 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-steel/40 to-transparent" />
+        <div className="relative">
+          <div className="pointer-events-none absolute left-[8%] right-[8%] top-10 hidden xl:block h-px bg-gradient-to-r from-transparent via-steel/55 to-transparent" />
+          <div className="pointer-events-none absolute left-[8%] right-[8%] top-10 hidden xl:block h-3 -translate-y-1 bg-[radial-gradient(ellipse_at_center,rgba(107,143,196,0.24),transparent_72%)]" />
 
-          {steps.map((step) => (
-            <div key={step.number} className="flex flex-col items-start sm:items-center sm:text-center lg:px-6">
-              <div className="flex h-16 w-16 md:h-[72px] md:w-[72px] shrink-0 items-center justify-center rounded-sm border border-steel/30 bg-steel/10 mb-5 md:mb-6">
-                <span className="font-display text-xl md:text-2xl font-bold text-steel">{step.number}</span>
-              </div>
-              <h3 className="font-display text-base md:text-lg font-semibold text-white mb-2 md:mb-3">{step.title}</h3>
-              <p className="text-xs md:text-sm text-neutral-500 leading-relaxed">{step.description}</p>
-            </div>
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6 xl:gap-7">
+            {steps.map((step, index) => {
+              const isVisible = visibleSteps[index]
+              return (
+                <div
+                  key={step.number}
+                  ref={(element) => {
+                    stepRefs.current[index] = element
+                  }}
+                  data-process-kind="step"
+                  data-process-index={index}
+                  className={`process-reveal ${isVisible ? 'is-visible' : ''}`}
+                  style={{ transitionDelay: isVisible ? `${Math.min(index * 110, 440)}ms` : '0ms' }}
+                >
+                  <article className={`group process-step-card ${isVisible ? 'process-step-card-active' : ''} relative flex h-full flex-col rounded-2xl border border-white/12 bg-white/[0.035] p-6 md:p-7 text-center shadow-[0_18px_42px_rgba(2,7,16,0.36)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/55 hover:shadow-[0_28px_58px_rgba(18,33,60,0.48)]`}>
+                    <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_18%_12%,rgba(107,143,196,0.24),transparent_46%)] opacity-85" />
+                    <div className="relative flex items-center gap-3 mb-5 md:mb-6">
+                      <div className="process-step-node inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-steel/35 bg-steel/10">
+                        <span className="font-display text-2xl font-semibold text-steel-light">{step.number}</span>
+                      </div>
+                      <span className="h-px flex-1 bg-gradient-to-r from-steel/45 via-steel/15 to-transparent" />
+                    </div>
+
+                    <h3 className="relative font-display text-xl text-white mb-3 leading-tight">{step.title}</h3>
+                    <p className="relative text-sm md:text-base text-neutral-300/90 leading-relaxed">{step.description}</p>
+                    <span className="pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/85 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+                  </article>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
     </section>

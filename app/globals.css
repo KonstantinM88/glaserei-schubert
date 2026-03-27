@@ -194,6 +194,73 @@
     opacity: 0.7;
   }
 
+  .process-reveal {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0) scale(0.975);
+    filter: blur(1.4px);
+    transition: opacity 0.74s var(--ease-premium), transform 0.74s var(--ease-premium), filter 0.74s var(--ease-premium);
+  }
+  .process-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+
+  .process-step-card {
+    overflow: hidden;
+    isolation: isolate;
+    will-change: transform, box-shadow;
+  }
+  .process-step-card::before {
+    content: '';
+    position: absolute;
+    top: -120%;
+    left: -34%;
+    width: 28%;
+    height: 340%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-140%) rotate(20deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    transition: transform 0.84s var(--ease-premium), opacity 0.45s var(--ease-premium);
+  }
+  .process-step-card:hover::before {
+    opacity: 1;
+    transform: translateX(430%) rotate(20deg);
+  }
+  .process-step-card-active .process-step-node {
+    animation: processNodePulse 0.82s var(--ease-premium) both;
+  }
+  .process-step-node {
+    transition: transform 0.45s var(--ease-premium), border-color 0.45s var(--ease-premium), box-shadow 0.45s var(--ease-premium), background-color 0.45s var(--ease-premium);
+  }
+  .process-step-card:hover .process-step-node {
+    transform: translateY(-1px) scale(1.05);
+    border-color: rgba(107, 143, 196, 0.72);
+    background-color: rgba(74, 111, 165, 0.24);
+    box-shadow: 0 12px 28px rgba(45, 74, 122, 0.36);
+  }
+  .process-step-card > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  @keyframes processNodePulse {
+    0% {
+      transform: scale(0.92);
+      box-shadow: 0 0 0 0 rgba(107, 143, 196, 0.36);
+    }
+    60% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 16px rgba(107, 143, 196, 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(107, 143, 196, 0);
+    }
+  }
+
   /* Focus ring */
   *:focus-visible {
     outline: 2px solid var(--color-steel);
@@ -324,6 +391,21 @@
     .leistungen-mobile-pulse .leistungen-card-arrow,
     .leistungen-mobile-pulse .leistungen-card-bottom-line {
       transform: none;
+    }
+
+    .process-reveal {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+    .process-step-card,
+    .process-step-card::before,
+    .process-step-node,
+    .process-step-card-active .process-step-node {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
     }
 
     .trust-marquee-track {
