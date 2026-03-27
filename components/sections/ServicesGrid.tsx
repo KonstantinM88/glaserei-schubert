@@ -29,6 +29,7 @@ interface ServicesGridProps {
   limit?: number
   variant?: 'cards' | 'grid'
   enableMobileScrollPulse?: boolean
+  enableScrollReveal?: boolean
 }
 
 export function ServicesGrid({
@@ -38,11 +39,16 @@ export function ServicesGrid({
   limit,
   variant = 'cards',
   enableMobileScrollPulse = false,
+  enableScrollReveal = false,
 }: ServicesGridProps) {
   const services = limit ? SERVICES.slice(0, limit) : SERVICES
   const lang = locale as 'de' | 'en'
   const [mobilePulse, setMobilePulse] = useState<MobilePulse>(null)
-  const cardRefs = useRef<Array<HTMLAnchorElement | null>>([])
+  const [revealedCards, setRevealedCards] = useState<boolean[]>(() =>
+    services.map(() => !enableScrollReveal),
+  )
+  const revealedCardsRef = useRef(revealedCards)
+  const cardRefs = useRef<Array<HTMLDivElement | null>>([])
   const hasScrolledRef = useRef(false)
   const lastScrollYRef = useRef(0)
   const scrollDirectionRef = useRef<ScrollDirection>('down')
@@ -52,6 +58,15 @@ export function ServicesGrid({
     variant === 'grid'
       ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
       : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4'
+
+  useEffect(() => {
+    revealedCardsRef.current = revealedCards
+  }, [revealedCards])
+
+  useEffect(() => {
+    setRevealedCards(services.map(() => !enableScrollReveal))
+    pulseDoneRef.current.clear()
+  }, [enableScrollReveal, services.length])
 
   useEffect(() => {
     if (!enableMobileScrollPulse) {
@@ -75,7 +90,14 @@ export function ServicesGrid({
   }, [enableMobileScrollPulse])
 
   useEffect(() => {
-    if (!enableMobileScrollPulse || !('IntersectionObserver' in window)) {
+    if (!enableMobileScrollPulse && !enableScrollReveal) {
+      return
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      if (enableScrollReveal) {
+        setRevealedCards(services.map(() => true))
+      }
       return
     }
 
@@ -98,7 +120,23 @@ export function ServicesGrid({
             return
           }
 
-          if (mobileMedia.matches && hasScrolledRef.current && !pulseDoneRef.current.has(cardIndex)) {
+          if (enableScrollReveal && !revealedCardsRef.current[cardIndex]) {
+            setRevealedCards((prev) => {
+              if (prev[cardIndex]) {
+                return prev
+              }
+              const next = [...prev]
+              next[cardIndex] = true
+              return next
+            })
+          }
+
+          if (
+            enableMobileScrollPulse &&
+            mobileMedia.matches &&
+            hasScrolledRef.current &&
+            !pulseDoneRef.current.has(cardIndex)
+          ) {
             pulseDoneRef.current.add(cardIndex)
             setMobilePulse({ index: cardIndex, direction: scrollDirectionRef.current })
 
@@ -124,7 +162,7 @@ export function ServicesGrid({
     })
 
     return () => observer.disconnect()
-  }, [enableMobileScrollPulse, services.length])
+  }, [enableMobileScrollPulse, enableScrollReveal, services.length])
 
   useEffect(() => {
     return () => {
@@ -148,6 +186,7 @@ export function ServicesGrid({
         <div className={`grid ${gridCols} gap-4 md:gap-5 xl:gap-6`}>
           {services.map((service, index) => {
             const tr = service[lang]
+            const isVisible = revealedCards[index] ?? !enableScrollReveal
             const isPulseActive = mobilePulse?.index === index
             const pulseClass =
               enableMobileScrollPulse && isPulseActive
@@ -155,54 +194,59 @@ export function ServicesGrid({
                 : ''
 
             return (
-              <Link
+              <div
                 key={service.slug}
                 ref={(element) => {
                   cardRefs.current[index] = element
                 }}
                 data-service-index={index}
-                href={`/${locale}/leistungen/${service.slug}`}
-                className={`group leistungen-service-card ${pulseClass} relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white/95 shadow-[0_12px_30px_rgba(16,24,40,0.08)] transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/45 hover:shadow-[0_24px_50px_rgba(36,57,90,0.2)]`}
+                className={enableScrollReveal ? `leistungen-reveal ${isVisible ? 'is-visible' : ''}` : ''}
+                style={enableScrollReveal ? { transitionDelay: isVisible ? `${Math.min(index * 70, 490)}ms` : '0ms' } : undefined}
               >
-                <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/0 via-white/0 to-steel/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={SERVICE_IMAGES[service.slug]}
-                    alt={tr.title}
-                    fill
-                    className="leistungen-card-image object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,25vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-anthracite/82 via-anthracite/12 to-transparent" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(107,143,196,0.30),transparent_46%)] opacity-75" />
-                  <div className="absolute left-4 top-4 inline-flex h-8 items-center rounded-md border border-white/25 bg-black/25 px-2.5 text-[11px] font-medium tracking-[0.12em] uppercase text-white/90 backdrop-blur-sm">
-                    {String(index + 1).padStart(2, '0')}
+                <Link
+                  href={`/${locale}/leistungen/${service.slug}`}
+                  className={`group leistungen-service-card ${pulseClass} relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white/95 shadow-[0_12px_30px_rgba(16,24,40,0.08)] transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/45 hover:shadow-[0_24px_50px_rgba(36,57,90,0.2)]`}
+                >
+                  <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/0 via-white/0 to-steel/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <Image
+                      src={SERVICE_IMAGES[service.slug]}
+                      alt={tr.title}
+                      fill
+                      className="leistungen-card-image object-cover transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,25vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-anthracite/82 via-anthracite/12 to-transparent" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(107,143,196,0.30),transparent_46%)] opacity-75" />
+                    <div className="absolute left-4 top-4 inline-flex h-8 items-center rounded-md border border-white/25 bg-black/25 px-2.5 text-[11px] font-medium tracking-[0.12em] uppercase text-white/90 backdrop-blur-sm">
+                      {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <h3 className="font-display text-xl leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
+                        {tr.title}
+                      </h3>
+                    </div>
+                    <span className="leistungen-card-sheen pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-1000 group-hover:left-[125%] group-hover:opacity-100" />
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="font-display text-xl leading-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
-                      {tr.title}
-                    </h3>
+                  {/* Content */}
+                  <div className="relative flex flex-1 flex-col p-5 md:p-6">
+                    <p className="text-sm text-neutral-600 leading-relaxed flex-1 line-clamp-3">
+                      {tr.shortDesc}
+                    </p>
+                    <div className="mt-5 pt-4 border-t border-neutral-200/80 flex items-center justify-between">
+                      <span className="text-[10px] font-medium tracking-[0.15em] uppercase text-neutral-400">
+                        {locale === 'de' ? 'Glaserei Schubert' : 'Glaserei Schubert'}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-sm font-semibold text-steel">
+                        <span>{locale === 'de' ? 'Mehr erfahren' : 'Learn more'}</span>
+                        <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                      </span>
+                    </div>
                   </div>
-                  <span className="leistungen-card-sheen pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-1000 group-hover:left-[125%] group-hover:opacity-100" />
-                </div>
-                {/* Content */}
-                <div className="relative flex flex-1 flex-col p-5 md:p-6">
-                  <p className="text-sm text-neutral-600 leading-relaxed flex-1 line-clamp-3">
-                    {tr.shortDesc}
-                  </p>
-                  <div className="mt-5 pt-4 border-t border-neutral-200/80 flex items-center justify-between">
-                    <span className="text-[10px] font-medium tracking-[0.15em] uppercase text-neutral-400">
-                      {locale === 'de' ? 'Glaserei Schubert' : 'Glaserei Schubert'}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-sm font-semibold text-steel">
-                      <span>{locale === 'de' ? 'Mehr erfahren' : 'Learn more'}</span>
-                      <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                    </span>
-                  </div>
-                </div>
-                <span className="leistungen-card-bottom-line pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/75 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
-              </Link>
+                  <span className="leistungen-card-bottom-line pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/75 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+                </Link>
+              </div>
             )
           })}
         </div>
