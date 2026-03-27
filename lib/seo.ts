@@ -2,7 +2,10 @@
 import type { Metadata } from 'next'
 import { locales, type Locale } from './i18n'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.glaserei-schubert.de'
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.glaserei-schubert.de')
+const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`
 
 export const COMPANY = {
   name: 'Glaserei Schubert',
@@ -42,7 +45,7 @@ export function buildMetadata({
   image?: string
 }): Metadata {
   const url = `${BASE_URL}/${locale}${path}`
-  const ogImage = image || `${BASE_URL}/og-default.jpg`
+  const ogImage = image || DEFAULT_OG_IMAGE
 
   return {
     title,
@@ -112,7 +115,7 @@ export function localBusinessSchema() {
       },
     ],
     priceRange: '€€',
-    image: `${BASE_URL}/og-default.jpg`,
+    image: DEFAULT_OG_IMAGE,
     hasMap: `https://www.google.com/maps/place/Portitzer+Allee+10b,+04329+Leipzig`,
     areaServed: {
       '@type': 'City',
