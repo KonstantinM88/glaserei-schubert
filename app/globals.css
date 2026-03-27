@@ -266,6 +266,57 @@
     z-index: 2;
   }
 
+  .testimonials-reveal {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.975);
+    filter: blur(1.2px);
+    transition: opacity 0.72s var(--ease-premium), transform 0.72s var(--ease-premium), filter 0.72s var(--ease-premium);
+  }
+  .testimonials-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+
+  .testimonial-card {
+    isolation: isolate;
+    will-change: transform, box-shadow;
+  }
+  .testimonial-card::before {
+    content: '';
+    position: absolute;
+    top: -120%;
+    left: -34%;
+    width: 28%;
+    height: 340%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-140%) rotate(20deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+    transition: transform 0.84s var(--ease-premium), opacity 0.45s var(--ease-premium);
+  }
+  .testimonial-card:hover::before {
+    opacity: 1;
+    transform: translateX(430%) rotate(20deg);
+  }
+  .testimonial-card-tap {
+    transform: translateY(-0.375rem);
+    border-color: rgba(74, 111, 165, 0.4);
+    box-shadow: 0 26px 52px rgba(24, 40, 68, 0.18);
+  }
+  .testimonial-card-tap::before {
+    opacity: 1;
+    transform: translateX(430%) rotate(20deg);
+  }
+  .testimonial-card-tap .testimonial-card-bottom-line {
+    transform: scaleX(1);
+  }
+  .testimonial-card > * {
+    position: relative;
+    z-index: 2;
+  }
+
   @keyframes processNodePulse {
     0% {
       transform: scale(0.92);
@@ -451,6 +502,21 @@
     .process-mobile-pulse::before,
     .process-mobile-pulse .process-step-node,
     .process-mobile-pulse .process-step-bottom-line {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
+    }
+    .testimonials-reveal {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+    .testimonial-card,
+    .testimonial-card::before,
+    .testimonial-card-tap,
+    .testimonial-card-tap::before,
+    .testimonial-card-tap .testimonial-card-bottom-line {
       transition: none !important;
       animation: none !important;
       transform: none !important;

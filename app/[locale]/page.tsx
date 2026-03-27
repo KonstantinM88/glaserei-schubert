@@ -9,6 +9,7 @@ import { ServicesGrid } from '@/components/sections/ServicesGrid'
 import { AboutSection } from '@/components/sections/AboutSection'
 import { ProcessSection, CTASection } from '@/components/sections/ProcessSection'
 import { FAQSection } from '@/components/sections/FAQSection'
+import { TestimonialsSection } from '@/components/sections/TestimonialsSection'
 import { FAQ_DATA } from '@/lib/services-data'
 
 interface PageProps { params: Promise<{ locale: string }> }
@@ -166,34 +167,11 @@ export default async function HomePage({ params }: PageProps) {
         steps={processSteps}
       />
 
-      {/* Testimonials */}
-      <section className="section-py bg-white">
-        <div className="container-site">
-          <div className="text-center mb-10 md:mb-16">
-            <h2 className="text-graphite mb-4">{locale === 'de' ? 'Das sagen unsere Kunden' : 'What our clients say'}</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
-            {testimonials.map(r => (
-              <div key={r.name} className="relative bg-white border border-neutral-100 p-6 md:p-8 rounded-sm shadow-[0_2px_16px_rgba(0,0,0,0.05)]">
-                <div className="absolute top-4 left-6 font-display text-[4rem] text-steel/10 leading-none select-none">"</div>
-                <div className="flex gap-0.5 mb-4 md:mb-5">
-                  {[...Array(5)].map((_,i) => <svg key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>)}
-                </div>
-                <p className="text-sm md:text-base text-neutral-600 leading-relaxed italic mb-5 md:mb-6">{r.text}</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden shrink-0 border-2 border-neutral-100">
-                    <img src={r.img} alt={r.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-graphite">{r.name}</p>
-                    <p className="text-xs text-neutral-400">{r.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection
+        locale={locale}
+        title={locale === 'de' ? 'Das sagen unsere Kunden' : 'What our clients say'}
+        testimonials={testimonials}
+      />
 
       <FAQSection
         title={t('faq.title')}
