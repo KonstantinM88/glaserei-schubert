@@ -317,6 +317,50 @@
     z-index: 2;
   }
 
+  .faq-reveal {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.98);
+    filter: blur(1.1px);
+    transition: opacity 0.7s var(--ease-premium), transform 0.7s var(--ease-premium), filter 0.7s var(--ease-premium);
+  }
+  .faq-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+
+  .faq-item {
+    isolation: isolate;
+    will-change: transform, box-shadow;
+  }
+  .faq-item::before {
+    content: '';
+    position: absolute;
+    top: -120%;
+    left: -34%;
+    width: 28%;
+    height: 340%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-140%) rotate(20deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+    transition: transform 0.82s var(--ease-premium), opacity 0.44s var(--ease-premium);
+  }
+  .faq-item:hover::before,
+  .faq-item-open::before {
+    opacity: 1;
+    transform: translateX(430%) rotate(20deg);
+  }
+  .faq-item:hover .faq-item-bottom-line,
+  .faq-item-open .faq-item-bottom-line {
+    transform: scaleX(1);
+  }
+  .faq-item > * {
+    position: relative;
+    z-index: 2;
+  }
+
   @keyframes processNodePulse {
     0% {
       transform: scale(0.92);
@@ -517,6 +561,21 @@
     .testimonial-card-tap,
     .testimonial-card-tap::before,
     .testimonial-card-tap .testimonial-card-bottom-line {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
+    }
+    .faq-reveal {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+    .faq-item,
+    .faq-item::before,
+    .faq-item-open::before,
+    .faq-item-icon,
+    .faq-item-bottom-line {
       transition: none !important;
       animation: none !important;
       transform: none !important;
