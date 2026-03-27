@@ -1,7 +1,15 @@
 // components/sections/ServicesGrid.tsx
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
 import { SERVICES } from '@/lib/services-data'
+
+type ScrollDirection = 'up' | 'down'
+type MobilePulse = { index: number; direction: ScrollDirection } | null
+
+const MOBILE_QUERY = '(max-width: 1024px), (hover: none) and (pointer: coarse)'
 
 const SERVICE_IMAGES: Record<string, string> = {
   'fenster-tueren':       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&auto=format&fit=crop',
@@ -20,15 +28,109 @@ interface ServicesGridProps {
   subtitle: string
   limit?: number
   variant?: 'cards' | 'grid'
+  enableMobileScrollPulse?: boolean
 }
 
-export function ServicesGrid({ locale, title, subtitle, limit, variant = 'cards' }: ServicesGridProps) {
+export function ServicesGrid({
+  locale,
+  title,
+  subtitle,
+  limit,
+  variant = 'cards',
+  enableMobileScrollPulse = false,
+}: ServicesGridProps) {
   const services = limit ? SERVICES.slice(0, limit) : SERVICES
   const lang = locale as 'de' | 'en'
+  const [mobilePulse, setMobilePulse] = useState<MobilePulse>(null)
+  const cardRefs = useRef<Array<HTMLAnchorElement | null>>([])
+  const hasScrolledRef = useRef(false)
+  const lastScrollYRef = useRef(0)
+  const scrollDirectionRef = useRef<ScrollDirection>('down')
+  const pulseDoneRef = useRef<Set<number>>(new Set())
+  const pulseTimeoutsRef = useRef<number[]>([])
   const gridCols =
     variant === 'grid'
       ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
       : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4'
+
+  useEffect(() => {
+    if (!enableMobileScrollPulse) {
+      return
+    }
+
+    lastScrollYRef.current = window.scrollY
+
+    const onScroll = () => {
+      const nextScrollY = window.scrollY
+      const delta = nextScrollY - lastScrollYRef.current
+      if (Math.abs(delta) > 2) {
+        hasScrolledRef.current = true
+        scrollDirectionRef.current = delta > 0 ? 'down' : 'up'
+      }
+      lastScrollYRef.current = nextScrollY
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [enableMobileScrollPulse])
+
+  useEffect(() => {
+    if (!enableMobileScrollPulse || !('IntersectionObserver' in window)) {
+      return
+    }
+
+    const mobileMedia = window.matchMedia(MOBILE_QUERY)
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return
+          }
+
+          const cardIndexRaw = entry.target.getAttribute('data-service-index')
+          if (!cardIndexRaw) {
+            return
+          }
+
+          const cardIndex = Number(cardIndexRaw)
+          if (Number.isNaN(cardIndex)) {
+            return
+          }
+
+          if (mobileMedia.matches && hasScrolledRef.current && !pulseDoneRef.current.has(cardIndex)) {
+            pulseDoneRef.current.add(cardIndex)
+            setMobilePulse({ index: cardIndex, direction: scrollDirectionRef.current })
+
+            const timeoutId = window.setTimeout(() => {
+              setMobilePulse((current) => (current?.index === cardIndex ? null : current))
+            }, 1720)
+            pulseTimeoutsRef.current.push(timeoutId)
+          }
+
+          observer.unobserve(entry.target)
+        })
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -8% 0px',
+      },
+    )
+
+    cardRefs.current.forEach((card) => {
+      if (card) {
+        observer.observe(card)
+      }
+    })
+
+    return () => observer.disconnect()
+  }, [enableMobileScrollPulse, services.length])
+
+  useEffect(() => {
+    return () => {
+      pulseTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId))
+    }
+  }, [])
 
   return (
     <section className="section-py bg-[linear-gradient(180deg,#f7f8fb_0%,#ffffff_52%,#f8f9fc_100%)]">
@@ -46,11 +148,21 @@ export function ServicesGrid({ locale, title, subtitle, limit, variant = 'cards'
         <div className={`grid ${gridCols} gap-4 md:gap-5 xl:gap-6`}>
           {services.map((service, index) => {
             const tr = service[lang]
+            const isPulseActive = mobilePulse?.index === index
+            const pulseClass =
+              enableMobileScrollPulse && isPulseActive
+                ? `leistungen-mobile-pulse leistungen-mobile-pulse-${mobilePulse.direction}`
+                : ''
+
             return (
               <Link
                 key={service.slug}
+                ref={(element) => {
+                  cardRefs.current[index] = element
+                }}
+                data-service-index={index}
                 href={`/${locale}/leistungen/${service.slug}`}
-                className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white/95 shadow-[0_12px_30px_rgba(16,24,40,0.08)] transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/45 hover:shadow-[0_24px_50px_rgba(36,57,90,0.2)]"
+                className={`group leistungen-service-card ${pulseClass} relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white/95 shadow-[0_12px_30px_rgba(16,24,40,0.08)] transition-all duration-500 hover:-translate-y-1.5 hover:border-steel/45 hover:shadow-[0_24px_50px_rgba(36,57,90,0.2)]`}
               >
                 <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/0 via-white/0 to-steel/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 {/* Image */}
@@ -59,7 +171,7 @@ export function ServicesGrid({ locale, title, subtitle, limit, variant = 'cards'
                     src={SERVICE_IMAGES[service.slug]}
                     alt={tr.title}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="leistungen-card-image object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,25vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-anthracite/82 via-anthracite/12 to-transparent" />
@@ -72,6 +184,7 @@ export function ServicesGrid({ locale, title, subtitle, limit, variant = 'cards'
                       {tr.title}
                     </h3>
                   </div>
+                  <span className="leistungen-card-sheen pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-1000 group-hover:left-[125%] group-hover:opacity-100" />
                 </div>
                 {/* Content */}
                 <div className="relative flex flex-1 flex-col p-5 md:p-6">
@@ -88,7 +201,7 @@ export function ServicesGrid({ locale, title, subtitle, limit, variant = 'cards'
                     </span>
                   </div>
                 </div>
-                <span className="pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/75 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
+                <span className="leistungen-card-bottom-line pointer-events-none absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-steel/75 to-transparent scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
               </Link>
             )
           })}

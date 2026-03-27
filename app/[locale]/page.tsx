@@ -70,6 +70,7 @@ export default async function HomePage({ params }: PageProps) {
         title={t('services.title')}
         subtitle={t('services.subtitle')}
         limit={8}
+        enableMobileScrollPulse
       />
 
       <AboutSection
