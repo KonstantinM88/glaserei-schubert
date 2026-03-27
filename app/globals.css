@@ -172,10 +172,10 @@
     box-shadow: 0 24px 52px rgba(36, 57, 90, 0.18);
   }
   .leistungen-mobile-pulse-down {
-    animation: leistungenPulseDown 0.84s var(--ease-premium) both;
+    animation: leistungenPulseDown 0.84s var(--ease-premium) 2 both;
   }
   .leistungen-mobile-pulse-up {
-    animation: leistungenPulseUp 0.84s var(--ease-premium) both;
+    animation: leistungenPulseUp 0.84s var(--ease-premium) 2 both;
   }
   .leistungen-mobile-pulse .leistungen-card-image {
     transform: scale(1.09) rotate(0.55deg);
@@ -189,7 +189,8 @@
     transform: scaleX(1);
   }
   .leistungen-mobile-pulse .leistungen-card-sheen {
-    animation: leistungenSheenOnce 0.86s var(--ease-premium) both;
+    animation: leistungenSheenOnce 0.82s var(--ease-premium) 2 both;
+    animation-delay: 0.06s;
     opacity: 0.7;
   }
 

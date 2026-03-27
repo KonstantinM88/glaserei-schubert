@@ -102,7 +102,7 @@ export function LeistungenAnimatedGrid({ locale }: LeistungenAnimatedGridProps) 
 
             const timeoutId = window.setTimeout(() => {
               setMobilePulse((current) => (current?.index === cardIndex ? null : current))
-            }, 850)
+            }, 1720)
             pulseTimeoutsRef.current.push(timeoutId)
           }
 
