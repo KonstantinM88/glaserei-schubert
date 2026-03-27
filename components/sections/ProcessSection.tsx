@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 interface ProcessStep { number: string; title: string; description: string }
+type ScrollDirection = 'up' | 'down'
 const MOBILE_QUERY = '(max-width: 1024px), (hover: none) and (pointer: coarse)'
 
 export function ProcessSection({ title, subtitle, steps }: { title: string; subtitle: string; steps: ProcessStep[] }) {
@@ -16,7 +17,8 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
   const visibleStepsRef = useRef<boolean[]>(visibleSteps)
   const hasScrolledRef = useRef(false)
   const lastScrollYRef = useRef(0)
-  const pulseDoneRef = useRef<Set<number>>(new Set())
+  const scrollDirectionRef = useRef<ScrollDirection>('down')
+  const lastPulseDirectionRef = useRef<Array<ScrollDirection | null>>(steps.map(() => null))
   const pulseTimeoutsRef = useRef<number[]>([])
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
     setVisibleSteps(initialSteps)
     visibleStepsRef.current = initialSteps
     setMobilePulseSteps(initialSteps)
-    pulseDoneRef.current.clear()
+    lastPulseDirectionRef.current = steps.map(() => null)
   }, [steps.length])
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
       const delta = nextScrollY - lastScrollYRef.current
       if (Math.abs(delta) > 2) {
         hasScrolledRef.current = true
+        scrollDirectionRef.current = delta > 0 ? 'down' : 'up'
       }
       lastScrollYRef.current = nextScrollY
     }
@@ -94,8 +97,13 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
             })
           }
 
-          if (mobileMedia.matches && hasScrolledRef.current && !pulseDoneRef.current.has(index)) {
-            pulseDoneRef.current.add(index)
+          if (mobileMedia.matches && hasScrolledRef.current) {
+            const direction = scrollDirectionRef.current
+            const lastDirection = lastPulseDirectionRef.current[index]
+            if (direction === lastDirection) {
+              return
+            }
+            lastPulseDirectionRef.current[index] = direction
 
             setMobilePulseSteps((prev) => {
               if (prev[index]) {
@@ -118,8 +126,6 @@ export function ProcessSection({ title, subtitle, steps }: { title: string; subt
             }, 1720)
             pulseTimeoutsRef.current.push(timeoutId)
           }
-
-          observer.unobserve(target)
         })
       },
       {
