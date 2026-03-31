@@ -1,11 +1,9 @@
 // lib/seo.ts
 import type { Metadata } from 'next'
 import { locales, type Locale } from './i18n'
+import { SITE_URL } from './site-url'
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.glaserei-schubert.de')
-const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`
 
 export const COMPANY = {
   name: 'Glaserei Schubert',
@@ -44,17 +42,17 @@ export function buildMetadata({
   noindex?: boolean
   image?: string
 }): Metadata {
-  const url = `${BASE_URL}/${locale}${path}`
+  const url = `${SITE_URL}/${locale}${path}`
   const ogImage = image || DEFAULT_OG_IMAGE
 
   return {
     title,
     description,
-    metadataBase: new URL(BASE_URL),
+    metadataBase: new URL(SITE_URL),
     alternates: {
       canonical: url,
       languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}${path}`])
+        locales.map((l) => [l, `${SITE_URL}/${l}${path}`])
       ) as Record<string, string>,
     },
     openGraph: {
@@ -84,10 +82,10 @@ export function localBusinessSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': `${BASE_URL}/#organization`,
+    '@id': `${SITE_URL}/#organization`,
     name: COMPANY.name,
     legalName: COMPANY.legalName,
-    url: BASE_URL,
+    url: SITE_URL,
     telephone: COMPANY.phone,
     email: COMPANY.email,
     foundingDate: COMPANY.founded,
@@ -138,7 +136,7 @@ export function serviceSchema(service: {
     provider: {
       '@type': 'LocalBusiness',
       name: COMPANY.name,
-      url: BASE_URL,
+      url: SITE_URL,
     },
     areaServed: { '@type': 'City', name: 'Leipzig' },
   }

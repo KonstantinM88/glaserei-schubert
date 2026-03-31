@@ -1,10 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { locales } from '@/lib/i18n'
+import { getSiteUrl } from '@/lib/site-url'
 import { SERVICES } from '@/lib/services-data'
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.glaserei-schubert.de')
 
 const STATIC_PATHS = [
   '',
@@ -17,12 +14,8 @@ const STATIC_PATHS = [
   '/datenschutz',
 ] as const
 
-function getBaseUrl() {
-  return BASE_URL.replace(/\/+$/, '')
-}
-
 function languageAlternates(path: string) {
-  const baseUrl = getBaseUrl()
+  const baseUrl = getSiteUrl()
 
   return {
     languages: Object.fromEntries(
@@ -32,7 +25,7 @@ function languageAlternates(path: string) {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = getBaseUrl()
+  const baseUrl = getSiteUrl()
   const lastModified = new Date()
 
   const staticEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
