@@ -15,11 +15,15 @@ const SERVICE_IMAGES: Record<string, string> = {
   'fenster-tueren':       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&auto=format&fit=crop',
   'glasfassaden':         'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80&auto=format&fit=crop',
   'ganzglasanlagen':      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80&auto=format&fit=crop',
-  'reparaturverglasungen':'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80&auto=format&fit=crop',
+  'reparaturverglasungen':'/Pictures/workshop_%281%291600%20.webp',
   'spiegel':              'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80&auto=format&fit=crop',
   'terrassendaecher':     'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80&auto=format&fit=crop',
   'industrieverglasungen':'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&q=80&auto=format&fit=crop',
   'glasbearbeitung':      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80&auto=format&fit=crop',
+}
+
+const SERVICE_IMAGE_CLASSES: Partial<Record<string, string>> = {
+  reparaturverglasungen: 'object-[center_40%] md:object-[center_37%]',
 }
 
 interface ServicesGridProps {
@@ -188,6 +192,7 @@ export function ServicesGrid({
             const tr = service[lang]
             const isVisible = revealedCards[index] ?? !enableScrollReveal
             const isPulseActive = mobilePulse?.index === index
+            const imageClassName = SERVICE_IMAGE_CLASSES[service.slug] ?? ''
             const pulseClass =
               enableMobileScrollPulse && isPulseActive
                 ? `leistungen-mobile-pulse leistungen-mobile-pulse-${mobilePulse.direction}`
@@ -214,7 +219,7 @@ export function ServicesGrid({
                       src={SERVICE_IMAGES[service.slug]}
                       alt={tr.title}
                       fill
-                      className="leistungen-card-image object-cover transition-transform duration-700 group-hover:scale-110"
+                      className={`leistungen-card-image object-cover ${imageClassName} transition-transform duration-700 group-hover:scale-110`}
                       sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,25vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-anthracite/82 via-anthracite/12 to-transparent" />
